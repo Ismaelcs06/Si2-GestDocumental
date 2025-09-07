@@ -1,0 +1,19 @@
+@'
+# Entorno virtual
+env/
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# DB/Logs/Entornos
+db.sqlite3
+*.log
+*.env
+
+# Editor
+.vscode/
+'@ | Out-File -Encoding utf8 .gitignore
