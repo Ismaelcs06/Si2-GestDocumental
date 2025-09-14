@@ -14,6 +14,16 @@ celular_bo = RegexValidator(
     message="El celular debe comenzar con 6 o 7 y tener exactamente 8 dígitos."
 )
 
+ci_boliviano = RegexValidator(
+    regex=r'^\d{5,8}(-[A-Z0-9]{1,3})?$',
+    message="El CI debe tener entre 5-8 dígitos, opcionalmente seguido de guion y extensión (ej: 1234567-1A)."
+)
+
+nit_boliviano = RegexValidator(
+    regex=r'^\d{7,15}$',
+    message="El NIT debe contener entre 7 y 15 dígitos."
+)
+
 class User(AbstractUser):
     # === Datos personales (del diagrama) ===
     nombres           = models.CharField("Nombres", max_length=50, validators=[solo_letras])
@@ -22,7 +32,7 @@ class User(AbstractUser):
     direccion         = models.CharField("Dirección", max_length=200, blank=True)  # ← agregado por tu diagrama
     fecha_nacimiento  = models.DateField("Fecha de nacimiento", null=True, blank=True)
     email             = models.EmailField("Email", unique=True)
-    ci                = models.CharField("CI", max_length=20, unique=True)
+    ci                = models.CharField("CI", max_length=20, unique=True, validators=[ci_boliviano])
     celular           = models.CharField("Celular", max_length=8, blank=True, validators=[celular_bo])
 
     class Meta:
@@ -66,14 +76,48 @@ class Abogado(models.Model):
 
 class Cliente(models.Model):
     TIPO = [("PERSONA", "Persona"), ("EMPRESA", "Empresa")]
+    CLASIFICACION = [
+        ("DEMANDANTE", "Demandante"),
+        ("DEMANDADO", "Demandado"),
+        ("OTRO", "Otro")
+    ]
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="cliente")
     tipo_cliente = models.CharField("Tipo de cliente", max_length=10, choices=TIPO, default="PERSONA")
     nombre_empresa = models.CharField("Nombre empresa", max_length=150, blank=True)
+    nit = models.CharField("NIT", max_length=15, blank=True, validators=[nit_boliviano])
+    clasificacion_procesal = models.CharField("Clasificación procesal", max_length=15, choices=CLASIFICACION, default="OTRO")
     historial = models.TextField("Historial", blank=True)
 
     class Meta:
         verbose_name = "Cliente"
         verbose_name_plural = "Clientes"
+    
+    def clean(self):
+        """Validaciones personalizadas del modelo"""
+        from django.core.exceptions import ValidationError
+        errors = {}
+        
+        # Validar que empresas tengan NIT
+        if self.tipo_cliente == 'EMPRESA' and not self.nit:
+            errors['nit'] = 'Las empresas deben tener un NIT registrado.'
+            
+        # Validar que empresas tengan nombre de empresa
+        if self.tipo_cliente == 'EMPRESA' and not self.nombre_empresa:
+            errors['nombre_empresa'] = 'Las empresas deben tener un nombre registrado.'
+            
+        # Validar que personas no tengan NIT ni nombre de empresa
+        if self.tipo_cliente == 'PERSONA':
+            if self.nit:
+                errors['nit'] = 'Las personas naturales no deben tener NIT.'
+            if self.nombre_empresa:
+                errors['nombre_empresa'] = 'Las personas naturales no deben tener nombre de empresa.'
+        
+        if errors:
+            raise ValidationError(errors)
+    
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Cliente: {self.user.nombre_completo}"

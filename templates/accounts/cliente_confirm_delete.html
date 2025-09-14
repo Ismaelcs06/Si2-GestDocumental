@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="card-title">
+                        <i class="fas fa-exclamation-triangle"></i> {{ title }}
+                    </h3>
+                </div>
+
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>¡Atención!</strong> Esta acción no se puede deshacer.
+                    </div>
+
+                    <p>¿Está seguro de que desea eliminar el siguiente cliente?</p>
+
+                    <div class="card">
+                        <div class="card-body">
+                            <h5>
+                                {% if cliente.tipo_cliente == 'EMPRESA' %}
+                                    <i class="fas fa-building text-success"></i> {{ cliente.nombre_empresa }}
+                                    <br><small class="text-muted">Representante: {{ cliente.user.nombre_completo }}</small>
+                                {% else %}
+                                    <i class="fas fa-user text-primary"></i> {{ cliente.user.nombre_completo }}
+                                {% endif %}
+                            </h5>
+                            <p class="mb-1"><strong>CI:</strong> {{ cliente.user.ci }}</p>
+                            {% if cliente.nit %}
+                                <p class="mb-1"><strong>NIT:</strong> {{ cliente.nit }}</p>
+                            {% endif %}
+                            <p class="mb-1"><strong>Email:</strong> {{ cliente.user.email }}</p>
+                            <p class="mb-0">
+                                <strong>Clasificación:</strong> 
+                                <span class="badge 
+                                    {% if cliente.clasificacion_procesal == 'DEMANDANTE' %}badge-warning
+                                    {% elif cliente.clasificacion_procesal == 'DEMANDADO' %}badge-danger
+                                    {% else %}badge-light{% endif %}">
+                                    {{ cliente.get_clasificacion_procesal_display }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle"></i>
+                        Al eliminar este cliente, también se eliminará su cuenta de usuario asociada y todos los datos relacionados.
+                    </div>
+
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-6">
+                                <button type="submit" class="btn btn-danger btn-block btn-lg">
+                                    <i class="fas fa-trash"></i> Sí, eliminar
+                                </button>
+                            </div>
+                            <div class="col-6">
+                                <a href="{% url 'accounts:cliente_detail' cliente.pk %}" class="btn btn-secondary btn-block btn-lg">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

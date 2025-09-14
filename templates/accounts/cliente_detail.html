@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Cliente: {{ cliente.user.nombre_completo }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-user"></i> 
+                        {% if cliente.tipo_cliente == 'EMPRESA' %}
+                            {{ cliente.nombre_empresa }}
+                        {% else %}
+                            {{ cliente.user.nombre_completo }}
+                        {% endif %}
+                    </h3>
+                    <div class="card-tools">
+                        <a href="{% url 'accounts:cliente_update' cliente.pk %}" class="btn btn-primary">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                        <a href="{% url 'accounts:clientes_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-list"></i> Volver
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="40%">Tipo:</th>
+                                    <td>
+                                        <span class="badge {% if cliente.tipo_cliente == 'EMPRESA' %}badge-success{% else %}badge-primary{% endif %}">
+                                            {{ cliente.get_tipo_cliente_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Clasificación Procesal:</th>
+                                    <td>
+                                        <span class="badge 
+                                            {% if cliente.clasificacion_procesal == 'DEMANDANTE' %}badge-warning
+                                            {% elif cliente.clasificacion_procesal == 'DEMANDADO' %}badge-danger
+                                            {% else %}badge-light{% endif %}">
+                                            {{ cliente.get_clasificacion_procesal_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% if cliente.tipo_cliente == 'EMPRESA' %}
+                                <tr>
+                                    <th>NIT:</th>
+                                    <td>{{ cliente.nit }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Representante Legal:</th>
+                                    <td>{{ cliente.user.nombre_completo }}</td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+                                    <th>CI:</th>
+                                    <td>{{ cliente.user.ci }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Email:</th>
+                                    <td><a href="mailto:{{ cliente.user.email }}">{{ cliente.user.email }}</a></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="40%">Celular:</th>
+                                    <td>
+                                        {% if cliente.user.celular %}
+                                            <a href="tel:{{ cliente.user.celular }}">{{ cliente.user.celular }}</a>
+                                        {% else %}
+                                            <span class="text-muted">No registrado</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Dirección:</th>
+                                    <td>
+                                        {% if cliente.user.direccion %}
+                                            {{ cliente.user.direccion }}
+                                        {% else %}
+                                            <span class="text-muted">No registrada</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Fecha de Nacimiento:</th>
+                                    <td>
+                                        {% if cliente.user.fecha_nacimiento %}
+                                            {{ cliente.user.fecha_nacimiento }}
+                                        {% else %}
+                                            <span class="text-muted">No registrada</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Registrado:</th>
+                                    <td>{{ cliente.user.date_joined|date:"d/m/Y H:i" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    {% if cliente.historial %}
+                    <div class="row">
+                        <div class="col-12">
+                            <h5><i class="fas fa-history"></i> Historial</h5>
+                            <div class="border-left border-primary pl-3">
+                                <p>{{ cliente.historial|linebreaks }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title"><i class="fas fa-cogs"></i> Acciones</h4>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a href="{% url 'accounts:cliente_update' cliente.pk %}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-edit"></i> Editar información
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <i class="fas fa-file-alt"></i> Ver casos asociados
+                        </a>
+                        <a href="{% url 'accounts:cliente_delete' cliente.pk %}" class="list-group-item list-group-item-action text-danger">
+                            <i class="fas fa-trash"></i> Eliminar cliente
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

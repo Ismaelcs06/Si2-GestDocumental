@@ -62,14 +62,14 @@
           <li class="accordion">
             <a href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false"
               aria-controls="collapseTwo" class="collapsible">
-              <span class="icon-search2 mr-3"></span>Explore
+              <span class="fas fa-users mr-3"></span>Gestión de Clientes
             </a>
             <div id="collapseTwo" class="collapse" aria-labelledby="headingOne">
               <div>
                 <ul>
-                  <li><a href="#">Interior</a></li>
-                  <li><a href="#">Food</a></li>
-                  <li><a href="#">Travel</a></li>
+                  <li><a href="{% url 'accounts:clientes_list' %}">Lista de Clientes</a></li>
+                  <li><a href="{% url 'accounts:cliente_create' %}?tipo=PERSONA">Nuevo Cliente - Persona</a></li>
+                  <li><a href="{% url 'accounts:cliente_create' %}?tipo=EMPRESA">Nuevo Cliente - Empresa</a></li>
                 </ul>
               </div>
             </div>

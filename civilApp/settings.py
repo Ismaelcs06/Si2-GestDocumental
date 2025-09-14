@@ -72,17 +72,26 @@ TEMPLATES = [
 WSGI_APPLICATION = 'civilApp.wsgi.application'
 
 
-# === Base de datos (PostgreSQL) ===
+# === Base de datos (SQLite para desarrollo) ===
+# Para PostgreSQL, descomenta la configuración de abajo y comenta SQLite
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'gestdocum',
-        'USER': 'postgres',
-        'PASSWORD': 'Ics2606',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# === Configuración PostgreSQL (comentada temporalmente) ===
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'gestdocum',
+#         'USER': 'postgres',
+#         'PASSWORD': 'Ics2606',
+#         'HOST': 'localhost',
+#         'PORT': '5432',
+#     }
+# }
 
 
 # === Validación de contraseñas ===

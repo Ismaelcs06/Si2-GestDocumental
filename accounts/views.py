@@ -2,7 +2,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import Group, Permission
+from django.contrib import messages
+from django.core.paginator import Paginator
+from django.db.models import Q
 from django import forms
+from .models import Cliente, User
+from .forms import ClientePersonaForm, ClienteEmpresaForm, ClienteUpdateForm, UserUpdateForm
 
 # ---------------------------------------------------------------------
 # Configura qué apps del proyecto mostrar en la pantalla de permisos.
@@ -130,3 +135,138 @@ def role_permissions(request, pk: int):
         "title": f"Permisos de rol: {role.name}",
     }
     return render(request, "accounts/role_permissions.html", ctx)
+
+
+# =========================
+#    VISTAS CRUD CLIENTES
+# =========================
+
+@login_required
+def clientes_list(request):
+    """Lista de clientes con paginación y búsqueda."""
+    search = request.GET.get('search', '')
+    tipo_filter = request.GET.get('tipo', '')
+    clasificacion_filter = request.GET.get('clasificacion', '')
+    
+    queryset = Cliente.objects.select_related('user').all()
+    
+    # Filtros de búsqueda
+    if search:
+        queryset = queryset.filter(
+            Q(user__nombres__icontains=search) |
+            Q(user__apellido_paterno__icontains=search) |
+            Q(user__apellido_materno__icontains=search) |
+            Q(user__ci__icontains=search) |
+            Q(user__email__icontains=search) |
+            Q(nombre_empresa__icontains=search) |
+            Q(nit__icontains=search)
+        )
+    
+    if tipo_filter:
+        queryset = queryset.filter(tipo_cliente=tipo_filter)
+        
+    if clasificacion_filter:
+        queryset = queryset.filter(clasificacion_procesal=clasificacion_filter)
+    
+    queryset = queryset.order_by('-user__date_joined')
+    
+    # Paginación
+    paginator = Paginator(queryset, 10)  # 10 clientes por página
+    page = request.GET.get('page')
+    clientes = paginator.get_page(page)
+    
+    context = {
+        'clientes': clientes,
+        'search': search,
+        'tipo_filter': tipo_filter,
+        'clasificacion_filter': clasificacion_filter,
+        'tipos': Cliente.TIPO,
+        'clasificaciones': Cliente.CLASIFICACION,
+    }
+    return render(request, 'accounts/clientes_list.html', context)
+
+
+@login_required
+def cliente_detail(request, pk):
+    """Vista detalle de un cliente."""
+    cliente = get_object_or_404(Cliente, pk=pk)
+    context = {'cliente': cliente}
+    return render(request, 'accounts/cliente_detail.html', context)
+
+
+@login_required
+def cliente_create(request):
+    """Vista para crear un nuevo cliente (persona o empresa)."""
+    tipo = request.GET.get('tipo', 'PERSONA')
+    
+    if tipo == 'EMPRESA':
+        FormClass = ClienteEmpresaForm
+        template_title = 'Registrar Cliente - Empresa'
+    else:
+        FormClass = ClientePersonaForm
+        template_title = 'Registrar Cliente - Persona Natural'
+    
+    if request.method == 'POST':
+        form = FormClass(request.POST)
+        if form.is_valid():
+            try:
+                cliente = form.save()
+                messages.success(request, f'Cliente {cliente.user.nombre_completo} registrado exitosamente.')
+                return redirect('accounts:cliente_detail', pk=cliente.pk)
+            except Exception as e:
+                messages.error(request, f'Error al registrar cliente: {str(e)}')
+    else:
+        form = FormClass()
+    
+    context = {
+        'form': form,
+        'title': template_title,
+        'tipo': tipo
+    }
+    return render(request, 'accounts/cliente_form.html', context)
+
+
+@login_required
+def cliente_update(request, pk):
+    """Vista para actualizar un cliente existente."""
+    cliente = get_object_or_404(Cliente, pk=pk)
+    
+    if request.method == 'POST':
+        cliente_form = ClienteUpdateForm(request.POST, instance=cliente)
+        user_form = UserUpdateForm(request.POST, instance=cliente.user)
+        
+        if cliente_form.is_valid() and user_form.is_valid():
+            user_form.save()
+            cliente_form.save()
+            messages.success(request, f'Cliente {cliente.user.nombre_completo} actualizado exitosamente.')
+            return redirect('accounts:cliente_detail', pk=cliente.pk)
+    else:
+        cliente_form = ClienteUpdateForm(instance=cliente)
+        user_form = UserUpdateForm(instance=cliente.user)
+    
+    context = {
+        'cliente_form': cliente_form,
+        'user_form': user_form,
+        'cliente': cliente,
+        'title': f'Editar Cliente: {cliente.user.nombre_completo}'
+    }
+    return render(request, 'accounts/cliente_update.html', context)
+
+
+@login_required
+def cliente_delete(request, pk):
+    """Vista para eliminar un cliente."""
+    cliente = get_object_or_404(Cliente, pk=pk)
+    
+    if request.method == 'POST':
+        nombre = cliente.user.nombre_completo
+        # Eliminar usuario también eliminará el cliente por CASCADE
+        cliente.user.delete()
+        messages.success(request, f'Cliente {nombre} eliminado exitosamente.')
+        return redirect('accounts:clientes_list')
+    
+    context = {
+        'cliente': cliente,
+        'title': f'Eliminar Cliente: {cliente.user.nombre_completo}'
+    }
+    return render(request, 'accounts/cliente_confirm_delete.html', context)

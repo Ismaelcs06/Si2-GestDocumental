@@ -37,9 +37,22 @@ class AbogadoAdmin(admin.ModelAdmin):
 
 @admin.register(Cliente)
 class ClienteAdmin(admin.ModelAdmin):
-    list_display = ("user", "tipo_cliente", "nombre_empresa")
-    search_fields = ("user__nombres", "user__apellido_paterno", "nombre_empresa")
-    list_filter = ("tipo_cliente",)
+    list_display = ("user", "tipo_cliente", "clasificacion_procesal", "nombre_empresa", "nit")
+    search_fields = ("user__nombres", "user__apellido_paterno", "nombre_empresa", "nit")
+    list_filter = ("tipo_cliente", "clasificacion_procesal")
+    
+    fieldsets = (
+        ("Información básica", {
+            "fields": ("user", "tipo_cliente", "clasificacion_procesal")
+        }),
+        ("Información de empresa", {
+            "fields": ("nombre_empresa", "nit"),
+            "classes": ("collapse",),
+        }),
+        ("Historial", {
+            "fields": ("historial",),
+        }),
+    )
 
 @admin.register(Auxiliar)
 class AuxiliarAdmin(admin.ModelAdmin):
