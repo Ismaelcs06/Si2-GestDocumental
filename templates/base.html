@@ -77,6 +77,11 @@
           <li><a href="#"><span class="icon-notifications mr-3"></span>Notifications</a></li>
           <li><a href="#"><span class="icon-location-arrow mr-3"></span>Direct</a></li>
           <li><a href="#"><span class="icon-pie-chart mr-3"></span>Stats</a></li>
+          <li>
+            <a href="{% url 'visualizacion_expedientes:expedientes_jerarquicos' %}">
+              <span class="icon-file-text mr-3"></span>Expedientes Jerárquicos
+            </a>
+          </li>
           <li><a href="{% url 'logout' %}"><span class="icon-sign-out mr-3"></span>Cerrar Sesion</a></li>
         </ul>
       </div>
@@ -104,4 +109,5 @@
   <!-- Tus scripts -->
   <script src="{% static 'js/sidebar.js' %}"></script>
 </body>
+
 </html>

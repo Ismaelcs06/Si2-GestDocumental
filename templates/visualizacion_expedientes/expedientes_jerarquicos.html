@@ -1,0 +1,346 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Expedientes - Vista Jerárquica{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-folder-tree"></i> Expedientes - Vista Jerárquica</h2>
+                <div class="text-muted">
+                    <small>{{ total_clientes }} cliente{{ total_clientes|pluralize:"s" }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <!-- Panel de navegación -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-sitemap"></i> Navegación</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="hierarchy-tree">
+                        {% if clientes_con_casos %}
+                            {% for item_cliente in clientes_con_casos %}
+                                <!-- NIVEL 1: CLIENTE -->
+                                <div class="tree-item level-1" data-level="1">
+                                    <div class="tree-node client-node" data-client-id="{{ item_cliente.cliente.id }}">
+                                        <span class="tree-toggle">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </span>
+                                        <i class="fas fa-user text-primary me-2"></i>
+                                        <span class="node-text">{{ item_cliente.cliente.user.nombre_completo }}</span>
+                                        <span class="badge bg-secondary ms-2">{{ item_cliente.total_casos }} caso{{ item_cliente.total_casos|pluralize:"s" }}</span>
+                                    </div>
+                                    
+                                    <!-- NIVEL 2: CASOS (ocultos inicialmente) -->
+                                    <div class="tree-children" style="display: none;">
+                                        {% for item_caso in item_cliente.casos %}
+                                            <div class="tree-item level-2">
+                                                <div class="tree-node case-node" data-case-id="{{ item_caso.caso.id }}">
+                                                    <span class="tree-toggle">
+                                                        <i class="fas fa-chevron-right"></i>
+                                                    </span>
+                                                    <i class="fas fa-briefcase text-success me-2"></i>
+                                                    <span class="node-text">{{ item_caso.caso.nro_caso }}</span>
+                                                    {% if item_caso.caso.tipo_de_caso %}
+                                                        <small class="text-muted">- {{ item_caso.caso.tipo_de_caso }}</small>
+                                                    {% endif %}
+                                                    <span class="badge bg-info ms-2">{{ item_caso.total_documentos }} doc{{ item_caso.total_documentos|pluralize:"s" }}</span>
+                                                </div>
+                                                
+                                                <!-- NIVEL 3: EXPEDIENTES Y DOCUMENTOS -->
+                                                <div class="tree-children" style="display: none;">
+                                                    {% for item_expediente in item_caso.expedientes %}
+                                                        {% for documento in item_expediente.documentos %}
+                                                            <div class="tree-item level-3">
+                                                                <div class="tree-node document-node" 
+                                                                     data-document-id="{{ documento.id }}"
+                                                                     data-document-url="{{ documento.archivo.url }}"
+                                                                     data-document-name="{{ documento.nombre }}">
+                                                                    <i class="fas fa-file-alt text-warning me-2"></i>
+                                                                    <span class="node-text">{{ documento.nombre }}</span>
+                                                                    <small class="text-muted ms-2">({{ documento.tipo.nombre }})</small>
+                                                                </div>
+                                                            </div>
+                                                        {% endfor %}
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center p-4 text-muted">
+                                <i class="fas fa-folder-open fa-3x mb-3"></i>
+                                <p>No hay expedientes disponibles</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <!-- Panel de visualización -->
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-eye"></i> Visualizador</h5>
+                </div>
+                <div class="card-body">
+                    <div id="document-viewer">
+                        <div class="text-center text-muted p-5">
+                            <i class="fas fa-mouse-pointer fa-3x mb-3"></i>
+                            <h5>Selecciona un documento</h5>
+                            <p>Haz clic en cualquier documento del árbol para visualizarlo aquí</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.hierarchy-tree {
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.tree-item {
+    margin: 0;
+}
+
+.tree-node {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.2s;
+}
+
+.tree-node:hover {
+    background-color: #f8f9fa;
+}
+
+.tree-node.active {
+    background-color: #e3f2fd;
+    border-left: 4px solid #2196f3;
+}
+
+.tree-toggle {
+    width: 20px;
+    display: inline-flex;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+.tree-toggle.expanded {
+    transform: rotate(90deg);
+}
+
+.tree-children {
+    margin-left: 20px;
+    border-left: 2px solid #e0e0e0;
+}
+
+.level-1 .tree-node {
+    font-weight: 600;
+    background-color: #f8f9fa;
+}
+
+.level-2 .tree-node {
+    font-weight: 500;
+    padding-left: 20px;
+}
+
+.level-3 .tree-node {
+    padding-left: 30px;
+    font-size: 0.9rem;
+}
+
+.document-node {
+    cursor: pointer;
+}
+
+.document-node:hover {
+    background-color: #fff3cd;
+}
+
+.node-text {
+    flex-grow: 1;
+    margin-left: 5px;
+}
+
+#document-viewer {
+    min-height: 500px;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    overflow: hidden;
+}
+
+#document-viewer iframe {
+    width: 100%;
+    height: 500px;
+    border: none;
+}
+
+#document-viewer .document-info {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.document-actions {
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Manejar clicks en nodos con toggle
+    document.querySelectorAll('.tree-node').forEach(function(node) {
+        node.addEventListener('click', function(e) {
+            const toggle = this.querySelector('.tree-toggle');
+            const children = this.parentElement.querySelector('.tree-children');
+            
+            // Si es un documento, manejarlo diferente
+            if (this.classList.contains('document-node')) {
+                e.stopPropagation();
+                showDocument(this);
+                return;
+            }
+            
+            // Si tiene toggle y children, expandir/contraer
+            if (toggle && children) {
+                e.stopPropagation();
+                toggleNode(toggle, children);
+            }
+        });
+    });
+    
+    // Función para expandir/contraer nodos
+    function toggleNode(toggle, children) {
+        const icon = toggle.querySelector('i');
+        
+        if (children.style.display === 'none' || children.style.display === '') {
+            // Expandir
+            children.style.display = 'block';
+            icon.classList.remove('fa-chevron-right');
+            icon.classList.add('fa-chevron-down');
+            toggle.classList.add('expanded');
+        } else {
+            // Contraer
+            children.style.display = 'none';
+            icon.classList.remove('fa-chevron-down');
+            icon.classList.add('fa-chevron-right');
+            toggle.classList.remove('expanded');
+        }
+    }
+    
+    // Función para mostrar documento
+    function showDocument(documentNode) {
+        // Remover clase active de otros nodos
+        document.querySelectorAll('.tree-node.active').forEach(function(node) {
+            node.classList.remove('active');
+        });
+        
+        // Agregar clase active al nodo seleccionado
+        documentNode.classList.add('active');
+        
+        const documentUrl = documentNode.getAttribute('data-document-url');
+        const documentName = documentNode.getAttribute('data-document-name');
+        const viewer = document.getElementById('document-viewer');
+        
+        // Detectar tipo de archivo
+        const fileExtension = documentUrl.split('.').pop().toLowerCase();
+        
+        let viewerContent = '';
+        
+        if (fileExtension === 'pdf') {
+            // Para PDFs
+            viewerContent = `
+                <div class="document-info">
+                    <h6><i class="fas fa-file-pdf text-danger"></i> ${documentName}</h6>
+                </div>
+                <div class="document-actions">
+                    <a href="${documentUrl}" class="btn btn-primary btn-sm" target="_blank">
+                        <i class="fas fa-external-link-alt"></i> Abrir en nueva pestaña
+                    </a>
+                    <a href="${documentUrl}" class="btn btn-success btn-sm ms-2" download>
+                        <i class="fas fa-download"></i> Descargar
+                    </a>
+                </div>
+                <iframe src="${documentUrl}"></iframe>
+            `;
+        } else if (fileExtension === 'txt') {
+            // Para archivos de texto
+            viewerContent = `
+                <div class="document-info">
+                    <h6><i class="fas fa-file-alt text-primary"></i> ${documentName}</h6>
+                </div>
+                <div class="document-actions">
+                    <a href="${documentUrl}" class="btn btn-primary btn-sm" target="_blank">
+                        <i class="fas fa-external-link-alt"></i> Abrir en nueva pestaña
+                    </a>
+                    <a href="${documentUrl}" class="btn btn-success btn-sm ms-2" download>
+                        <i class="fas fa-download"></i> Descargar
+                    </a>
+                </div>
+                <div class="p-3">
+                    <div id="text-content" class="border p-3 bg-white" style="min-height: 400px; font-family: monospace;">
+                        <div class="text-center text-muted p-4">
+                            <i class="fas fa-spinner fa-spin"></i> Cargando contenido...
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Cargar contenido del archivo de texto
+            setTimeout(() => {
+                fetch(documentUrl)
+                    .then(response => response.text())
+                    .then(text => {
+                        document.getElementById('text-content').innerHTML = `<pre>${text}</pre>`;
+                    })
+                    .catch(error => {
+                        document.getElementById('text-content').innerHTML = 
+                            '<div class="text-danger">Error al cargar el archivo</div>';
+                    });
+            }, 100);
+        } else {
+            // Para otros tipos de archivo
+            viewerContent = `
+                <div class="document-info">
+                    <h6><i class="fas fa-file text-secondary"></i> ${documentName}</h6>
+                </div>
+                <div class="document-actions">
+                    <a href="${documentUrl}" class="btn btn-primary btn-sm" target="_blank">
+                        <i class="fas fa-external-link-alt"></i> Abrir en nueva pestaña
+                    </a>
+                    <a href="${documentUrl}" class="btn btn-success btn-sm ms-2" download>
+                        <i class="fas fa-download"></i> Descargar
+                    </a>
+                </div>
+                <div class="text-center p-5 text-muted">
+                    <i class="fas fa-file fa-4x mb-3"></i>
+                    <p>Vista previa no disponible para este tipo de archivo</p>
+                    <p>Usa los botones de arriba para abrir o descargar</p>
+                </div>
+            `;
+        }
+        
+        viewer.innerHTML = viewerContent;
+    }
+});
+</script>
+{% endblock %}

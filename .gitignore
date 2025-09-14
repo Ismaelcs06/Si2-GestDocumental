@@ -1,0 +1,209 @@
+# =============================================================================
+# DJANGO REST FRAMEWORK - .gitignore
+# =============================================================================
+
+# === ENTORNOS VIRTUALES ===
+# Virtualenv
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+.env/
+
+# Conda
+.conda/
+conda-meta/
+
+# Pipenv
+Pipfile.lock
+
+# Poetry
+poetry.lock
+
+# === ARCHIVOS DE MEDIOS (UPLOADS DE USUARIOS) ===
+media/
+*/media/
+**/media/
+
+# === ARCHIVOS PYTHON ===
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# === DJANGO ESPECÍFICO ===
+# Base de datos local
+*.sqlite3
+*.sqlite3-journal
+db.sqlite3
+db.sqlite3-journal
+
+# Archivos estáticos compilados (para producción)
+staticfiles/
+static_root/
+/static/
+collected_static/
+
+# Archivos de migración locales (opcional - algunos prefieren incluirlas)
+# */migrations/*.py
+# */migrations/*.pyc
+# !*/migrations/__init__.py
+
+# Logs de Django
+*.log
+logs/
+
+# Archivos de cache de Django
+.cache/
+
+# === ARCHIVOS DE CONFIGURACIÓN SENSIBLES ===
+# Variables de entorno
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Archivos de configuración con secretos
+secrets.json
+config.json
+local_settings.py
+
+# === IDEs Y EDITORES ===
+# VSCode
+.vscode/
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# === SISTEMA OPERATIVO ===
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.tmp
+*.temp
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# === TESTING Y COVERAGE ===
+# Coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# === DOCUMENTACIÓN ===
+# Sphinx documentation
+docs/_build/
+
+# === JUPYTER NOTEBOOKS ===
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# === HERRAMIENTAS DE DESARROLLO ===
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# === CELERY ===
+celerybeat-schedule
+celerybeat.pid
+
+# === REDIS ===
+dump.rdb
+
+# === ARCHIVOS TEMPORALES ===
+*.tmp
+*.bak
+*.backup
+.temp/
+tmp/
+
+# === CERTIFICADOS SSL ===
+*.pem
+*.key
+*.crt
+*.csr
+
+# === NODE.JS (si usas frontend) ===
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# === ARCHIVOS ESPECÍFICOS DEL PROYECTO ===
+# Agrega aquí archivos específicos de tu proyecto que no quieras versionar
+# Por ejemplo:
+# config/local.py
+# datos_prueba/
+# backups/

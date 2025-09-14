@@ -34,6 +34,9 @@ INSTALLED_APPS = [
     'pages',
     'accounts',
     'gestdocu',
+    'visualizacion_expedientes',
+    
+
 ]
 
 
@@ -78,7 +81,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'gestdocum',
         'USER': 'postgres',
-        'PASSWORD': 'Ics2606',
+        'PASSWORD': 'postgres',
         'HOST': 'localhost',
         'PORT': '5432',
     }
