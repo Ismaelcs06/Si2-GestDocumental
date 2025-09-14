@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{{ title|default:"Rol" }}{% endblock %}
+
+{% block content %}
+<div class="container" style="width:100%; max-width:720px;">
+  <h2>{{ title|default:"Rol" }}</h2>
+
+  <form method="post" class="mt-3">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <div class="mt-3">
+      <button type="submit" class="btn btn-primary">Guardar</button>
+      <a class="btn btn-light" href="{% url 'accounts:roles_list' %}">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

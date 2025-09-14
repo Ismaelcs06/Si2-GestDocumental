@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 980px; width: 100%;">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">{{ title }}</h2>
+    <div>
+      <a class="btn btn-light" href="{% url 'accounts:roles_list' %}">Volver</a>
+      <button form="perm-form" class="btn btn-primary">Guardar</button>
+    </div>
+  </div>
+
+  <!-- Buscador simple (filtra por texto en cliente) -->
+  <input id="permSearch" class="form-control mb-3" placeholder="Buscar permiso, app o modelo…">
+
+  <form id="perm-form" method="post">
+    {% csrf_token %}
+    <!-- Render agrupado por app/model -->
+    {% for app, models in grouped.items %}
+      <div class="card mb-3 perm-block">
+        <div class="card-header font-weight-bold">{{ app|title }}</div>
+        <div class="card-body">
+          {% for model, perms in models.items %}
+            <div class="mb-2">
+              <div class="text-muted small mb-1">{{ model|title }}</div>
+              <div class="pl-2">
+                {% for p in perms %}
+                  <div class="form-check">
+                    <input class="form-check-input perm-item"
+                           type="checkbox"
+                           name="permissions"
+                           value="{{ p.id }}"
+                           id="perm_{{ p.id }}"
+                           {% if p.id in form.fields.permissions.initial %}checked{% endif %}>
+                    <label class="form-check-label" for="perm_{{ p.id }}">
+                      {{ p.name }} <span class="text-muted">({{ p.codename }})</span>
+                    </label>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% empty %}
+      <p class="text-muted">No hay permisos para mostrar.</p>
+    {% endfor %}
+  </form>
+</div>
+
+<script>
+  // Filtro rápido por texto
+  const input = document.getElementById('permSearch');
+  input.addEventListener('input', () => {
+    const q = input.value.toLowerCase();
+    document.querySelectorAll('.perm-block').forEach(block => {
+      block.style.display = block.innerText.toLowerCase().includes(q) ? '' : 'none';
+    });
+  });
+</script>
+{% endblock %}

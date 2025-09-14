@@ -5,4 +5,4 @@ class ProfilesConfig(AppConfig):
     name = 'profiles'
 
     def ready(self):
-        from . import signals  # importa signals.py cuando arranca Django
+        from . import signals  # carga signals

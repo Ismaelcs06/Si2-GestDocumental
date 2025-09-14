@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Roles{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="d-flex justify-content-between align-items-center mb-3" style="width:100%;">
+    <h2 class="mb-0">Roles</h2>
+    <a class="btn btn-primary" href="{% url 'accounts:role_create' %}">Nuevo rol</a>
+  </div>
+
+  <div class="table-responsive" style="width:100%;">
+    <table class="table table-borderless align-middle">
+      <thead class="thead-light">
+  <tr>
+    <th>Nombre</th>
+    <th>Permisos</th>
+    <th>Usuarios</th>
+    <th>Acciones</th>  <!-- 👈 -->
+  </tr>
+</thead>
+<tbody>
+  {% for r in roles %}
+  <tr>
+    <td>{{ r.name }}</td>
+    <td><span class="badge badge-info">{{ r.num_perms }}</span></td>
+    <td><span class="badge badge-secondary">{{ r.num_users }}</span></td>
+    <td>
+      <a href="{% url 'accounts:role_edit' r.id %}" class="btn btn-sm btn-primary">
+        <i class="fas fa-edit"></i>
+      </a>
+      <a href="{% url 'accounts:role_delete' r.id %}" class="btn btn-sm btn-danger">
+        <i class="fas fa-trash"></i>
+      </a>
+      <a href="{% url 'accounts:role_permissions' r.id %}" class="btn btn-sm btn-warning" title="Permisos">
+  <i class="fas fa-key"></i>
+</a>
+
+    </td>
+  </tr>
+  {% endfor %}
+</tbody>
+
+    </table>
+  </div>
+</div>
+{% endblock %}
